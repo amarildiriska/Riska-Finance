@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Riska's Finance</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Riska's Finance</h1>
+      <p>Your simple income and expense tracker</p>
+    </header>
+
+    <!-- Input Form -->
+    <section class="form">
+      <input type="text" id="description" placeholder="Enter description">
+      <input type="number" id="amount" placeholder="Enter amount">
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <button onclick="addTransaction()">Add Transaction</button>
+    </section>
+
+    <!-- Transaction List -->
+    <section class="transactions">
+      <h2>Transactions</h2>
+      <ul id="transaction-list"></ul>
+    </section>
+
+    <!-- Report -->
+    <section class="report">
+      <h2>Report Summary</h2>
+      <div class="report-item">
+        <span>Total Income</span>
+        <span id="total-income">$0</span>
+      </div>
+      <div class="report-item">
+        <span>Total Expenses</span>
+        <span id="total-expenses">$0</span>
+      </div>
+      <div class="report-item net-balance">
+        <span>Net Balance</span>
+        <span id="net-balance">$0</span>
+      </div>
+    </section>
+
+    <!-- Print Report Button -->
+    <button onclick="printReport()" class="print-btn">Print Report</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

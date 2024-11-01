@@ -1,0 +1,165 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  color: #333;
+}
+
+.container {
+  background: #ffffff;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  color: #6a11cb;
+  font-weight: 700;
+}
+
+p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.form, .transactions, .report {
+  margin-top: 20px;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+}
+
+input, select, button {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 1rem;
+}
+
+input, select {
+  background: #f8f8f8;
+}
+
+button {
+  background: #6a11cb;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #2575fc;
+}
+
+.transactions {
+  background: #f1f1f1;
+  padding: 10px 20px;
+  border-radius: 10px;
+}
+
+.transactions h2 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+#transaction-list {
+  list-style-type: none;
+}
+
+#transaction-list li {
+  background: #ffffff;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.report {
+  background: #6a11cb;
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.report h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.report-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  padding: 8px;
+  border-bottom: 1px solid #ffffff33;
+}
+
+.report-item:last-child {
+  border: none;
+}
+
+.net-balance {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 480px) {
+  .container {
+    max-width: 100%; /* Takes full width on mobile */
+    padding: 10px;
+  }
+
+  .form {
+    grid-template-columns: 1fr; /* Stacks inputs in one column on mobile */
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  input, select, button {
+    padding: 10px;
+    font-size: 1rem; /* Smaller font and padding on mobile */
+  }
+
+  .report-item {
+    font-size: 1rem;
+  }
+}

@@ -118,18 +118,23 @@
         Tesseract.recognize(reader.result, 'eng', { logger: (m) => console.log(m) })
           .then(({ data: { text } }) => {
             resultElement.textContent = `Extracted Text: ${text}`;
-            const amountMatch = text.match(/(\d+(\.\d{2})?)/); // Extract amount (e.g., 123.45)
+
+            // Extract amounts using regex
+            const amountMatch = text.match(/(?:\$?\s?)(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/);
+            
             if (amountMatch) {
-              document.getElementById('amount').value = parseFloat(amountMatch[0]);
+              const extractedAmount = parseFloat(amountMatch[1].replace(/,/g, '')); // Remove commas
+              document.getElementById('amount').value = extractedAmount;
             } else {
               alert("Unable to detect amount. Please enter manually.");
             }
           })
           .catch((error) => {
             console.error(error);
-            alert("Error processing the image.");
+            alert("Error processing the image. Please try again.");
           });
       };
+
       reader.readAsDataURL(file);
     }
   </script>

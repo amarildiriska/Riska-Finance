@@ -4,174 +4,54 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Riska's Finance</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    h1 {
-      color: #f04c24;
-    }
-    .form input, .form select, .form button {
-      margin: 5px;
-    }
-    .upload-section {
-      margin-top: 20px;
-    }
-    .report-item {
-      display: flex;
-      justify-content: space-between;
-      margin: 10px 0;
-    }
-    .print-btn {
-      background-color: #f04c24;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-    }
-    .print-btn:hover {
-      background-color: #d43f1f;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <header>
-    <h1>Riska's Finance</h1>
-    <p>Your simple income and expense tracker</p>
-  </header>
+  <div class="container">
+    <header>
+      <h1>Riska's Finance</h1>
+      <p>Your simple income and expense tracker</p>
+    </header>
 
-  <!-- Input Form -->
-  <section class="form">
-    <input type="text" id="description" placeholder="Enter description">
-    <input type="number" id="amount" placeholder="Enter amount">
-    <select id="type">
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-    </select>
-    <button onclick="addTransaction()">Add Transaction</button>
-  </section>
+    <!-- Input Form -->
+    <section class="form">
+      <input type="text" id="description" placeholder="Enter description">
+      <input type="number" id="amount" placeholder="Enter amount">
+      <select id="type">
+        <option value="income">Income</option>
+        <option value="expense">Expense</option>
+      </select>
+      <button onclick="addTransaction()">Add Transaction</button>
+    </section>
 
-  <!-- Upload Invoice -->
-  <section class="upload-section">
-    <h2>Upload Invoice</h2>
-    <input type="file" id="invoice-image" accept="image/*">
-    <button onclick="processInvoice()">Process Invoice</button>
-    <p id="ocr-result"></p>
-  </section>
+    <!-- Transaction List -->
+    <section class="transactions">
+      <h2>Transactions</h2>
+      <ul id="transaction-list"></ul>
+    </section>
 
-  <!-- Transaction List -->
-  <section class="transactions">
-    <h2>Transactions</h2>
-    <ul id="transaction-list"></ul>
-  </section>
+    <!-- Report -->
+    <section class="report">
+      <h2>Report Summary</h2>
+      <div class="report-item">
+        <span>Total Income</span>
+        <span id="total-income">$0</span>
+      </div>
+      <div class="report-item">
+        <span>Total Expenses</span>
+        <span id="total-expenses">$0</span>
+      </div>
+      <div class="report-item net-balance">
+        <span>Net Balance</span>
+        <span id="net-balance">$0</span>
+      </div>
+    </section>
 
-  <!-- Report -->
-  <section class="report">
-    <h2>Report Summary</h2>
-    <div class="report-item">
-      <span>Total Income</span>
-      <span id="total-income">$0</span>
-    </div>
-    <div class="report-item">
-      <span>Total Expenses</span>
-      <span id="total-expenses">$0</span>
-    </div>
-    <div class="report-item net-balance">
-      <span>Net Balance</span>
-      <span id="net-balance">$0</span>
-    </div>
-  </section>
+    <!-- Print Report Button -->
+    <button onclick="printReport()" class="print-btn">Print Report</button>
+  </div>
 
-  <!-- Print Report Button -->
-  <button onclick="printReport()" class="print-btn">Print Report</button>
-
-  <script>
-    let totalIncome = 0;
-    let totalExpenses = 0;
-
-    function addTransaction() {
-      const description = document.getElementById('description').value;
-      const amount = parseFloat(document.getElementById('amount').value);
-      const type = document.getElementById('type').value;
-
-      if (!description || isNaN(amount)) {
-        alert('Please provide valid description and amount.');
-        return;
-      }
-
-      const transactionList = document.getElementById('transaction-list');
-      const li = document.createElement('li');
-      li.textContent = `${type === 'income' ? '+' : '-'} $${amount.toFixed(2)} - ${description}`;
-      transactionList.appendChild(li);
-
-      if (type === 'income') {
-        totalIncome += amount;
-      } else {
-        totalExpenses += amount;
-      }
-
-      updateReport();
-    }
-
-    function processInvoice() {
-      const file = document.getElementById('invoice-image').files[0];
-      const resultElement = document.getElementById('ocr-result');
-
-      if (!file) {
-        alert("Please upload an image.");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function () {
-        Tesseract.recognize(reader.result, 'eng', { logger: (m) => console.log(m) })
-          .then(({ data: { text } }) => {
-            resultElement.textContent = `Extracted Text: ${text}`;
-            const lines = text.split('\n').filter(line => line.trim() !== '');
-            const amountMatch = text.match(/(?:\$?\s?)(\d{1,3}(?:,\d{3})*(?:\.\d{2})?)/);
-            const nameMatch = lines[0] || 'Unknown Invoice';
-
-            if (amountMatch) {
-              const amount = parseFloat(amountMatch[1].replace(/,/g, ''));
-              totalExpenses += amount;
-
-              // Add to Transactions
-              const transactionList = document.getElementById('transaction-list');
-              const li = document.createElement('li');
-              li.textContent = `- $${amount.toFixed(2)} - ${nameMatch}`;
-              transactionList.appendChild(li);
-
-              updateReport();
-              alert(`Expense added: $${amount.toFixed(2)} for "${nameMatch}"`);
-            } else {
-              alert("Unable to detect amount. Please try again.");
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-            alert("Error processing the image. Please try again.");
-          });
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    function updateReport() {
-      document.getElementById('total-income').textContent = `$${totalIncome.toFixed(2)}`;
-      document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-      document.getElementById('net-balance').textContent = `$${(totalIncome - totalExpenses).toFixed(2)}`;
-    }
-
-    function printReport() {
-      window.print();
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>

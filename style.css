@@ -13,18 +13,19 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: linear-gradient(135deg, #667eea, #764ba2); /* soft purple/blue */
   color: #333;
 }
 
 .container {
-  background: #ffffff;
+  background: linear-gradient(135deg, #6a11cb, #2575fc); /* gradient card */
   border-radius: 15px;
   width: 90%;
   max-width: 500px;
-  padding: 20px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+  padding: 25px;
+  box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.6s ease-in-out;
+  color: white;
 }
 
 @keyframes fadeIn {
@@ -39,59 +40,70 @@ header {
 
 h1 {
   font-size: 2rem;
-  color: #6a11cb;
+  color: white;
   font-weight: 700;
 }
 
 p {
   font-size: 1rem;
-  color: #555;
+  color: #e0e0e0;
 }
 
 .form, .transactions, .report {
   margin-top: 20px;
 }
 
+/* Inputs and buttons */
 .form {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 10px;
-}
-
-input, select, button {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  outline: none;
-  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 input, select {
-  background: #f8f8f8;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.9);
+  outline: none;
+  transition: box-shadow 0.3s;
+}
+
+input:focus, select:focus {
+  box-shadow: 0 0 0 2px #ff7b54; /* focus glow */
 }
 
 button {
-  background: #6a11cb;
-  color: white;
+  padding: 14px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
   font-weight: 700;
-  transition: background 0.3s;
+  font-size: 1rem;
+  transition: transform 0.2s, background 0.3s;
 }
 
 button:hover {
-  background: #2575fc;
+  transform: translateY(-2px);
 }
 
-.transactions {
-  background: #f1f1f1;
-  padding: 10px 20px;
-  border-radius: 10px;
+/* Add Transaction Button */
+.form button {
+  background: #ff5722;
+  color: white;
 }
 
+.form button:hover {
+  background: #e64a19;
+}
+
+/* Transactions */
 .transactions h2 {
   font-size: 1.2rem;
-  margin-bottom: 10px;
+  margin: 15px 0;
+  color: white;
+  font-weight: 700;
 }
 
 #transaction-list {
@@ -99,20 +111,21 @@ button:hover {
 }
 
 #transaction-list li {
-  background: #ffffff;
+  background: rgba(255,255,255,0.9);
   padding: 10px;
   margin: 8px 0;
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  color: #333;
 }
 
+/* Report */
 .report {
-  background: #6a11cb;
-  color: white;
-  padding: 15px;
-  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
   text-align: center;
 }
 
@@ -120,6 +133,7 @@ button:hover {
   font-size: 1.4rem;
   font-weight: 700;
   margin-bottom: 15px;
+  color: #f8f8f8;
 }
 
 .report-item {
@@ -127,7 +141,7 @@ button:hover {
   justify-content: space-between;
   font-size: 1.1rem;
   padding: 8px;
-  border-bottom: 1px solid #ffffff33;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
 }
 
 .report-item:last-child {
@@ -139,27 +153,38 @@ button:hover {
   font-weight: 700;
 }
 
-/* Responsive adjustments for mobile screens */
+/* Print Report Button */
+.print-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.5);
+  color: white;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s, border 0.3s;
+}
+
+.print-btn:hover {
+  background: rgba(255,255,255,0.2);
+  border-color: white;
+}
+
+/* Responsive */
 @media (max-width: 480px) {
   .container {
-    max-width: 100%; /* Takes full width on mobile */
-    padding: 10px;
-  }
-
-  .form {
-    grid-template-columns: 1fr; /* Stacks inputs in one column on mobile */
+    max-width: 100%;
+    padding: 15px;
   }
 
   h1 {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
   }
 
   input, select, button {
-    padding: 10px;
-    font-size: 1rem; /* Smaller font and padding on mobile */
-  }
-
-  .report-item {
     font-size: 1rem;
+    padding: 12px;
   }
 }

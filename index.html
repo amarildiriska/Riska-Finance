@@ -10,18 +10,20 @@
 </head>
 <body>
 
-    <aside class="sidebar">
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <aside class="sidebar" id="sidebar">
         <div class="brand">
             <h2>Riska's<span>Finance</span></h2>
             <p>Your simple income and expense tracker</p>
         </div>
         <nav>
-            <a href="#" class="active">Dashboard</a>
-            <a href="#" onclick="exportCSV()">Export Data</a>
-            <a href="#" onclick="printReport()">Print Report</a>
+            <a href="#" class="active" onclick="toggleSidebar()">Dashboard</a>
+            <a href="#" onclick="exportCSV(); toggleSidebar()">Export Data</a>
+            <a href="#" onclick="printReport(); toggleSidebar()">Print Report</a>
         </nav>
         <div class="profile">
-            <p>Amarildi Riska</p>
+            <p>Administrator</p>
             <small>Senior Admin</small>
         </div>
     </aside>
@@ -29,8 +31,10 @@
     <main class="main-content">
         
         <div class="mobile-header">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            
             <h3>Riska's Finance</h3>
-            <p class="date-display" id="mobile-date">Loading...</p>
+            <p style="font-size: 0.8rem; color: #64748b;" id="mobile-date">Loading...</p>
         </div>
 
         <header class="desktop-header">
@@ -122,7 +126,8 @@
         </div>
 
         <footer class="main-footer">
-            <p>&copy; 2026 Riska's Finance Services.</p>
+            <p>&copy;  2026 Riska's Finance. All Rights Reserved.</p>
+            <p>www.riskasfinance.com.</p>
         </footer>
     </main>
 
@@ -144,9 +149,19 @@
     <script src="script.js"></script>
     <script>
         // Set dates on load
-        const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        if(document.getElementById('desktop-date')) document.getElementById('desktop-date').textContent = today;
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        if(document.getElementById('desktop-date')) document.getElementById('desktop-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         if(document.getElementById('mobile-date')) document.getElementById('mobile-date').textContent = today;
+
+        // --- NEW FUNCTION TO TOGGLE MENU ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            
+            // Toggle the 'active' class on both
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
     </script>
 </body>
 </html>

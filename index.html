@@ -1,57 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Riska's Finance</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riska's Finance | Professional Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>Riska's Finance</h1>
-      <p>Your simple income and expense tracker</p>
-    </header>
 
-    <!-- Input Form -->
-    <section class="form">
-      <input type="text" id="description" placeholder="Enter description">
-      <input type="number" id="amount" placeholder="Enter amount">
-      <select id="type">
-        <option value="income">Income</option>
-        <option value="expense">Expense</option>
-      </select>
-      <button onclick="addTransaction()">Add Transaction</button>
-    </section>
+    <aside class="sidebar">
+        <div class="brand">
+            <h2>Riska's<span>Finance</span></h2>
+            <p>Your simple income and expense tracker</p>
+        </div>
+        <nav>
+            <a href="#" class="active">Dashboard</a>
+            <a href="#" onclick="exportCSV()">Export Data</a>
+            <a href="#" onclick="printReport()">Print Report</a>
+        </nav>
+        <div class="profile">
+            <p>Administrator</p>
+            <small>Senior Admin</small>
+        </div>
+    </aside>
 
-    <!-- Transaction List -->
-    <section class="transactions">
-      <h2>Transactions</h2>
-      <ul id="transaction-list"></ul>
-    </section>
+    <main class="main-content">
+        <header>
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p class="date-display" id="current-date">Fetching date...</p>
+            </div>
+        </header>
 
-    <!-- Report -->
-    <section class="report">
-      <h2>Report Summary</h2>
-      <div class="report-item">
-        <span>Total Income</span>
-        <span id="total-income">$0</span>
-      </div>
-      <div class="report-item">
-        <span>Total Expenses</span>
-        <span id="total-expenses">$0</span>
-      </div>
-      <div class="report-item net-balance">
-        <span>Net Balance</span>
-        <span id="net-balance">$0</span>
-      </div>
-    </section>
+        <div class="cards-grid">
+            <div class="card income-card">
+                <h3>Total Income</h3>
+                <p id="total-income">$0.00</p>
+            </div>
+            <div class="card expense-card">
+                <h3>Total Expenses</h3>
+                <p id="total-expenses">$0.00</p>
+            </div>
+            <div class="card balance-card">
+                <h3>Net Balance</h3>
+                <p id="net-balance">$0.00</p>
+            </div>
+        </div>
 
-    <!-- Print Report Button -->
-    <button onclick="printReport()" class="print-btn">Print Report</button>
-  </div>
+        <div class="content-grid">
+            <div class="section-container">
+                <h2>New Entry</h2>
+                <form id="transaction-form" onsubmit="event.preventDefault(); addTransaction();">
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="description" placeholder="e.g. Audit Service" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="category">
+                            <option value="Service Revenue">Service Revenue</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Supplies">Supplies</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Tax">Tax Prep</option>
+                            <option value="Software">Software</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount</label>
+                        <input type="number" id="amount" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="type">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">Add Transaction</button>
+                </form>
+            </div>
 
-  <script src="script.js"></script>
+            <div class="section-container">
+                <h2>Cash Flow</h2>
+                <div class="chart-wrapper">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-container table-section">
+            <h2>Recent Transactions</h2>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th class="text-right">Amount</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transaction-list">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer class="main-footer">
+            <p>&copy; 2026 Riska's Finance Services. All rights reserved.</p>
+            <p>www.riskasfinance.com.</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
 </body>
 </html>

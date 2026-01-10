@@ -27,15 +27,16 @@
     </aside>
 
     <main class="main-content">
+        
         <div class="mobile-header">
             <h3>Riska's Finance</h3>
-            <p id="mobile-date">Loading...</p>
+            <p class="date-display" id="mobile-date">Loading...</p>
         </div>
 
         <header class="desktop-header">
             <div>
                 <h1>Dashboard Overview</h1>
-                <p class="date-display" id="current-date">Fetching date...</p>
+                <p class="date-display" id="desktop-date">Fetching date...</p>
             </div>
         </header>
 
@@ -64,7 +65,7 @@
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <input type="text" id="description" placeholder="e.g. Audit Service" required>
+                        <input type="text" id="description" placeholder="e.g. Client Payment" required>
                     </div>
                     <div class="row-group">
                         <div class="form-group">
@@ -142,8 +143,10 @@
 
     <script src="script.js"></script>
     <script>
-        // Set mobile date
-        document.getElementById('mobile-date').textContent = new Date().toLocaleDateString();
+        // Set dates on load
+        const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        if(document.getElementById('desktop-date')) document.getElementById('desktop-date').textContent = today;
+        if(document.getElementById('mobile-date')) document.getElementById('mobile-date').textContent = today;
     </script>
 </body>
 </html>

@@ -309,7 +309,7 @@ function printReport() {
             </table>
 
             <div class="footer">
-                <p>&copy; 2026 Flowtab. This is a computer-generated document.</p>
+                <p>© 2026 Riska's Finance. This is a computer-generated document.</p>
             </div>
 
         </body>

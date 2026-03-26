@@ -1,5 +1,5 @@
 // Local Storage Key
-const LOCAL_STORAGE_KEY = "riska_finance_v2";
+const LOCAL_STORAGE_KEY = "flowtab_v1";
 
 // State
 let transactions = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
@@ -84,7 +84,6 @@ function renderTable() {
         const row = document.createElement("tr");
         
         const badgeClass = t.type === 'income' ? 'badge-income' : 'badge-expense';
-        const amountClass = t.type === 'income' ? 'text-success' : 'text-danger'; // Note: defined in print styles or inline
 
         // Inline styles for text colors in the main dashboard
         const colorStyle = t.type === 'income' ? 'color: #10b981;' : 'color: #ef4444;';
@@ -137,7 +136,7 @@ function renderChart() {
             labels: ['Income', 'Expenses'],
             datasets: [{
                 data: [income, expense],
-                backgroundColor: ['#10b981', '#ef4444'], // Green, Red
+                backgroundColor: ['#10b981', '#ef4444'],
                 borderWidth: 0
             }]
         },
@@ -153,10 +152,10 @@ function renderChart() {
     });
 }
 
-// Export to CSV (Excel)
+// Export to CSV
 function exportCSV() {
     let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Date,Description,Category,Type,Amount\n"; // Header
+    csvContent += "Date,Description,Category,Type,Amount\n";
 
     transactions.forEach(t => {
         const row = `${t.date},${t.description},${t.category},${t.type},${t.amount}`;
@@ -166,7 +165,7 @@ function exportCSV() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "Riska_Finance_Data.csv");
+    link.setAttribute("download", "Flowtab_Data.csv");
     document.body.appendChild(link);
     link.click();
 }
@@ -175,20 +174,17 @@ function exportCSV() {
 //  PROFESSIONAL REPORT PRINTING FUNCTION
 // ==========================================
 function printReport() {
-    // 1. Calculate Totals
     const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
     const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
     const netBalance = totalIncome - totalExpenses;
     const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // 2. Open Print Window
     let printWindow = window.open("", "PRINT", "height=800,width=1000");
 
-    // 3. Build HTML Structure
     printWindow.document.write(`
         <html>
         <head>
-            <title>Financial Statement - Riska's Finance</title>
+            <title>Financial Statement - Flowtab</title>
             <style>
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
                 
@@ -200,7 +196,6 @@ function printReport() {
                     margin: 0 auto;
                 }
                 
-                /* Header */
                 .header-container {
                     display: flex;
                     justify-content: space-between;
@@ -217,7 +212,6 @@ function printReport() {
                 .report-info h2 { margin: 0; font-size: 20px; color: #334155; }
                 .report-info p { margin: 5px 0 0; color: #64748b; }
 
-                /* Summary Boxes */
                 .summary-grid {
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
@@ -237,7 +231,6 @@ function printReport() {
                 .text-red { color: #ef4444; }
                 .text-dark { color: #0f172a; }
 
-                /* Table */
                 table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
                 thead { background: #0f172a; color: white; }
                 th { padding: 12px 15px; text-align: left; font-weight: 600; letter-spacing: 0.5px; }
@@ -249,7 +242,6 @@ function printReport() {
                 .bg-inc { background: #dcfce7; color: #166534; }
                 .bg-exp { background: #fee2e2; color: #991b1b; }
 
-                /* Footer */
                 .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px; }
             </style>
         </head>
@@ -257,8 +249,8 @@ function printReport() {
             
             <div class="header-container">
                 <div class="brand">
-                    <h1>Riska's<span>Finance</span></h1>
-                    <p>Professional Accounting Services</p>
+                    <h1>Flow<span>tab</span></h1>
+                    <p>Simple Income & Expense Tracker</p>
                 </div>
                 <div class="report-info">
                     <h2>Statement of Accounts</h2>
@@ -295,8 +287,6 @@ function printReport() {
                 <tbody>
     `);
 
-    // 4. Inject Rows
-    // Sort transactions by date descending for the print view
     const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
 
     sorted.forEach(t => {
@@ -314,13 +304,12 @@ function printReport() {
         `);
     });
 
-    // 5. Close HTML
     printWindow.document.write(`
                 </tbody>
             </table>
 
             <div class="footer">
-                <p>&copy; 2026 Riska's Finance Services. This is a computer-generated document.</p>
+                <p>&copy; 2026 Flowtab. This is a computer-generated document.</p>
             </div>
 
         </body>
@@ -330,7 +319,6 @@ function printReport() {
     printWindow.document.close();
     printWindow.focus();
     
-    // Small delay to ensure styles load before printing
     setTimeout(() => {
         printWindow.print();
         printWindow.close();

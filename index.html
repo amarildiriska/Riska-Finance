@@ -3,24 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Riska's Finance</title>
+    <title>Flowtab</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── CSV Import Modal ── */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-backdrop.open { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            padding: 28px 28px 24px;
+            width: min(520px, 92vw);
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn {
+            from { transform: translateY(16px); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
+        }
+
+        .modal h2 { margin: 0 0 4px; font-size: 1.15rem; color: #1e293b; }
+        .modal p.modal-sub { margin: 0 0 20px; font-size: 0.82rem; color: #64748b; }
+
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: #94a3b8;
+            margin-top: -4px;
+        }
+        .modal-close:hover { color: #1e293b; }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 32px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #6366f1;
+            background: #f5f3ff;
+        }
+        .drop-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .drop-zone .dz-icon { font-size: 2rem; margin-bottom: 8px; }
+        .drop-zone .dz-label { font-size: 0.9rem; color: #475569; margin: 0; }
+        .drop-zone .dz-label span { color: #6366f1; font-weight: 600; }
+        .drop-zone .dz-hint { font-size: 0.75rem; color: #94a3b8; margin: 6px 0 0; }
+
+        /* Format guide */
+        .format-guide {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin: 16px 0;
+            font-size: 0.78rem;
+            color: #475569;
+        }
+        .format-guide strong { display: block; margin-bottom: 6px; color: #1e293b; }
+        .format-guide code {
+            display: block;
+            background: #e2e8f0;
+            border-radius: 4px;
+            padding: 6px 10px;
+            font-family: monospace;
+            font-size: 0.76rem;
+            color: #334155;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+        .format-guide ul {
+            margin: 8px 0 0;
+            padding-left: 16px;
+            line-height: 1.7;
+        }
+
+        /* Preview table */
+        #csv-preview-wrap {
+            display: none;
+            margin-top: 16px;
+        }
+        #csv-preview-wrap .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        #csv-preview-wrap .preview-header span {
+            font-size: 0.82rem;
+            color: #475569;
+        }
+        #csv-preview-wrap .preview-header strong { color: #1e293b; }
+
+        .preview-table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+        .preview-table th {
+            background: #f1f5f9;
+            padding: 8px 10px;
+            text-align: left;
+            color: #64748b;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .preview-table td {
+            padding: 7px 10px;
+            border-top: 1px solid #f1f5f9;
+            color: #334155;
+            white-space: nowrap;
+        }
+        .preview-table tr:hover td { background: #f8fafc; }
+        .badge-income {
+            background: #dcfce7;
+            color: #16a34a;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-weight: 600;
+            font-size: 0.72rem;
+        }
+        .badge-expense {
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-weight: 600;
+            font-size: 0.72rem;
+        }
+        .row-error td { background: #fff7f7 !important; }
+        .row-error .err-msg { color: #dc2626; font-size: 0.72rem; }
+
+        /* Error/success banners */
+        .csv-banner {
+            display: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
+            margin-top: 14px;
+        }
+        .csv-banner.error   { display: block; background: #fee2e2; color: #b91c1c; }
+        .csv-banner.success { display: block; background: #dcfce7; color: #15803d; }
+
+        /* Action buttons */
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            justify-content: flex-end;
+        }
+        .btn-cancel {
+            padding: 9px 18px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.15s;
+        }
+        .btn-cancel:hover { background: #f1f5f9; }
+
+        .btn-import {
+            padding: 9px 20px;
+            border-radius: 8px;
+            border: none;
+            background: #6366f1;
+            color: #fff;
+            font-size: 0.85rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.15s, opacity 0.15s;
+        }
+        .btn-import:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-import:not(:disabled):hover { background: #4f46e5; }
+
+        /* Trigger button (sidebar + inline) */
+        .btn-csv-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1.5px solid #6366f1;
+            background: transparent;
+            color: #6366f1;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            width: 100%;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .btn-csv-trigger:hover { background: #6366f1; color: #fff; }
+    </style>
 </head>
 <body>
 
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
+    <!-- ── CSV Import Modal ── -->
+    <div class="modal-backdrop" id="csv-modal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeCSVModal()">✕</button>
+            <h2>📂 Import Transactions</h2>
+            <p class="modal-sub">Upload a CSV file to bulk-add transactions.</p>
+
+            <!-- Drop zone -->
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="csv-file-input" accept=".csv,text/csv" onchange="handleCSVFile(this.files[0])">
+                <div class="dz-icon">📄</div>
+                <p class="dz-label"><span>Choose a file</span> or drag &amp; drop here</p>
+                <p class="dz-hint">Only .csv files are supported</p>
+            </div>
+
+            <!-- Format guide -->
+            <div class="format-guide">
+                <strong>Required CSV format (header row required):</strong>
+                <code>date,description,category,amount,type</code>
+                <ul>
+                    <li><strong>date</strong> — any standard date (e.g. 2026-03-15 or 3/15/2026)</li>
+                    <li><strong>description</strong> — text label for the transaction</li>
+                    <li><strong>category</strong> — Service Revenue, Salary, Supplies, Utilities, Tax, Other</li>
+                    <li><strong>amount</strong> — positive number (e.g. 250.00)</li>
+                    <li><strong>type</strong> — <em>income</em> or <em>expense</em></li>
+                </ul>
+            </div>
+
+            <!-- Preview -->
+            <div id="csv-preview-wrap">
+                <div class="preview-header">
+                    <span>Preview — <strong id="preview-count">0</strong> rows detected</span>
+                    <span id="preview-error-count" style="color:#dc2626;"></span>
+                </div>
+                <div class="preview-table-wrap">
+                    <table class="preview-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="csv-preview-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="csv-banner" id="csv-banner"></div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeCSVModal()">Cancel</button>
+                <button class="btn-import" id="btn-import-confirm" disabled onclick="importCSVTransactions()">
+                    Import Transactions
+                </button>
+            </div>
+        </div>
+    </div>
+
     <aside class="sidebar" id="sidebar">
         <div class="brand">
-            <h2>Riska's<span>Finance</span></h2>
+            <h2>Flow<span>tab</span></h2>
             <p>Your simple income and expense tracker</p>
         </div>
         <nav>
             <a href="#" class="active" onclick="toggleSidebar()">Dashboard</a>
             <a href="#" onclick="exportCSV(); toggleSidebar()">Export Data</a>
             <a href="#" onclick="printReport(); toggleSidebar()">Print Report</a>
+            <a href="#" onclick="openCSVModal(); toggleSidebar()">Import CSV</a>
         </nav>
         <div class="profile">
             <p>Administrator</p>
@@ -32,8 +311,7 @@
         
         <div class="mobile-header">
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            
-            <h3>Riska's Finance</h3>
+            <h3>Flowtab</h3>
             <p style="font-size: 0.8rem; color: #64748b;" id="mobile-date">Loading...</p>
         </div>
 
@@ -97,6 +375,11 @@
                     </div>
                     <button type="submit" class="btn-primary">Add Transaction</button>
                 </form>
+
+                <!-- CSV Import trigger -->
+                <button class="btn-csv-trigger" onclick="openCSVModal()">
+                    📂 Import from CSV
+                </button>
             </div>
 
             <div class="section-container">
@@ -119,15 +402,14 @@
                             <th class="text-right">Action</th>
                         </tr>
                     </thead>
-                    <tbody id="transaction-list">
-                        </tbody>
+                    <tbody id="transaction-list"></tbody>
                 </table>
             </div>
         </div>
 
         <footer class="main-footer">
             <p>&copy;  2026 Riska's Finance. All Rights Reserved.</p>
-            <p>www.riskasfinance.com.</p>
+            <p>www.riskasfinance.com</p>
         </footer>
     </main>
 
@@ -148,19 +430,276 @@
 
     <script src="script.js"></script>
     <script>
-        // Set dates on load
-        const today = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-        if(document.getElementById('desktop-date')) document.getElementById('desktop-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        if(document.getElementById('mobile-date')) document.getElementById('mobile-date').textContent = today;
+        /* ── Date display ── */
+        if(document.getElementById('desktop-date'))
+            document.getElementById('desktop-date').textContent =
+                new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+        if(document.getElementById('mobile-date'))
+            document.getElementById('mobile-date').textContent =
+                new Date().toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
 
-        // --- NEW FUNCTION TO TOGGLE MENU ---
+        /* ── Sidebar toggle ── */
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            
-            // Toggle the 'active' class on both
-            sidebar.classList.toggle('active');
-            overlay.classList.toggle('active');
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        /* ════════════════════════════════════════
+           CSV IMPORT  —  full implementation
+        ════════════════════════════════════════ */
+
+        let _csvParsed = [];   // holds validated rows ready to import
+
+        function openCSVModal() {
+            document.getElementById('csv-modal').classList.add('open');
+            resetCSVModal();
+        }
+
+        function closeCSVModal() {
+            document.getElementById('csv-modal').classList.remove('open');
+            resetCSVModal();
+        }
+
+        function resetCSVModal() {
+            _csvParsed = [];
+            document.getElementById('csv-file-input').value = '';
+            document.getElementById('csv-preview-wrap').style.display = 'none';
+            document.getElementById('csv-preview-body').innerHTML = '';
+            document.getElementById('btn-import-confirm').disabled = true;
+            const banner = document.getElementById('csv-banner');
+            banner.className = 'csv-banner';
+            banner.textContent = '';
+        }
+
+        /* Drag-and-drop on the drop zone */
+        const dz = document.getElementById('drop-zone');
+        dz.addEventListener('dragover',  e => { e.preventDefault(); dz.classList.add('dragover'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+        dz.addEventListener('drop', e => {
+            e.preventDefault();
+            dz.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleCSVFile(file);
+        });
+
+        /* Close modal when clicking backdrop */
+        document.getElementById('csv-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeCSVModal();
+        });
+
+        /* ── Parse & preview ── */
+        function handleCSVFile(file) {
+            if (!file) return;
+            if (!file.name.toLowerCase().endsWith('.csv') && file.type !== 'text/csv') {
+                showCSVBanner('error', 'Only .csv files are supported. Please choose a CSV file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => parseAndPreviewCSV(e.target.result);
+            reader.readAsText(file);
+        }
+
+        const VALID_CATEGORIES = ['service revenue','salary','supplies','utilities','tax','other'];
+        const CATEGORY_MAP = {
+            'service revenue': 'Service Revenue',
+            'revenue':         'Service Revenue',
+            'salary':          'Salary',
+            'supplies':        'Supplies',
+            'utilities':       'Utilities',
+            'tax':             'Tax',
+            'tax prep':        'Tax',
+            'other':           'Other'
+        };
+
+        function parseAndPreviewCSV(text) {
+            const banner = document.getElementById('csv-banner');
+            banner.className = 'csv-banner';
+            banner.textContent = '';
+
+            // Split lines, remove blank
+            const lines = text.split(/\r?\n/).filter(l => l.trim() !== '');
+            if (lines.length < 2) {
+                showCSVBanner('error', 'The file appears empty or has no data rows.');
+                return;
+            }
+
+            // Parse header
+            const headers = splitCSVRow(lines[0]).map(h => h.trim().toLowerCase());
+            const required = ['date','description','amount','type'];
+            const missing  = required.filter(r => !headers.includes(r));
+            if (missing.length) {
+                showCSVBanner('error', `Missing required column(s): ${missing.join(', ')}. Check the format guide above.`);
+                return;
+            }
+
+            const idx = {
+                date:        headers.indexOf('date'),
+                description: headers.indexOf('description'),
+                category:    headers.indexOf('category'),
+                amount:      headers.indexOf('amount'),
+                type:        headers.indexOf('type')
+            };
+
+            _csvParsed = [];
+            const previewRows = [];
+            let errorCount = 0;
+
+            for (let i = 1; i < lines.length; i++) {
+                const cols  = splitCSVRow(lines[i]);
+                const raw   = {
+                    date:        (cols[idx.date]        || '').trim(),
+                    description: (cols[idx.description] || '').trim(),
+                    category:    (cols[idx.category]    || 'Other').trim(),
+                    amount:      (cols[idx.amount]      || '').trim(),
+                    type:        (cols[idx.type]        || '').trim().toLowerCase()
+                };
+
+                const errors = [];
+
+                // Validate date
+                const parsedDate = new Date(raw.date);
+                const dateOK = raw.date !== '' && !isNaN(parsedDate.getTime());
+                if (!dateOK) errors.push('Invalid date');
+                const isoDate = dateOK
+                    ? parsedDate.toISOString().split('T')[0]
+                    : raw.date;
+
+                // Validate description
+                if (!raw.description) errors.push('Missing description');
+
+                // Validate amount
+                const amt = parseFloat(raw.amount.replace(/[$,]/g, ''));
+                if (isNaN(amt) || amt <= 0) errors.push('Invalid amount');
+
+                // Validate type
+                if (!['income','expense'].includes(raw.type)) errors.push('Type must be income or expense');
+
+                // Normalize category
+                const catKey = raw.category.toLowerCase();
+                const category = CATEGORY_MAP[catKey] || 'Other';
+
+                const hasError = errors.length > 0;
+                if (hasError) errorCount++;
+
+                previewRows.push({ row: i, raw, isoDate, category, amt, hasError, errors });
+
+                if (!hasError) {
+                    _csvParsed.push({
+                        id:          Date.now() + '_' + i,
+                        date:        isoDate,
+                        description: raw.description,
+                        category:    category,
+                        amount:      amt,
+                        type:        raw.type
+                    });
+                }
+            }
+
+            // Render preview (max 50 rows shown)
+            renderPreviewTable(previewRows.slice(0, 50));
+            document.getElementById('preview-count').textContent = lines.length - 1;
+            const errEl = document.getElementById('preview-error-count');
+            errEl.textContent = errorCount > 0 ? `${errorCount} row(s) with errors (will be skipped)` : '';
+
+            document.getElementById('csv-preview-wrap').style.display = 'block';
+
+            if (_csvParsed.length === 0) {
+                showCSVBanner('error', 'No valid rows found. Please fix your CSV and try again.');
+                document.getElementById('btn-import-confirm').disabled = true;
+            } else {
+                document.getElementById('btn-import-confirm').disabled = false;
+                if (errorCount > 0) {
+                    showCSVBanner('error',
+                        `${errorCount} row(s) have errors and will be skipped. ${_csvParsed.length} valid row(s) are ready to import.`);
+                }
+            }
+        }
+
+        function renderPreviewTable(rows) {
+            const tbody = document.getElementById('csv-preview-body');
+            tbody.innerHTML = rows.map(r => {
+                const typeClass = r.raw.type === 'income' ? 'badge-income' : 'badge-expense';
+                const amtDisplay = isNaN(r.amt) ? r.raw.amount : '$' + r.amt.toFixed(2);
+                if (r.hasError) {
+                    return `<tr class="row-error">
+                        <td>${r.row}</td>
+                        <td>${esc(r.raw.date)}</td>
+                        <td>${esc(r.raw.description)}</td>
+                        <td>${esc(r.raw.category)}</td>
+                        <td>${esc(r.raw.amount)}</td>
+                        <td><span class="err-msg">⚠ ${r.errors.join('; ')}</span></td>
+                    </tr>`;
+                }
+                return `<tr>
+                    <td>${r.row}</td>
+                    <td>${esc(r.isoDate)}</td>
+                    <td>${esc(r.raw.description)}</td>
+                    <td>${esc(r.category)}</td>
+                    <td>${amtDisplay}</td>
+                    <td><span class="${typeClass}">${r.raw.type}</span></td>
+                </tr>`;
+            }).join('');
+        }
+
+        /* ── Import confirmed ── */
+        function importCSVTransactions() {
+            if (!_csvParsed.length) return;
+
+            // Push each parsed row into script.js's live `transactions` array,
+            // then call saveAndRender() — which saves to "riska_finance_v2" and refreshes the UI.
+            _csvParsed.forEach(t => {
+                transactions.push({
+                    id:          Date.now() + Math.random(), // unique id
+                    date:        t.date,
+                    description: t.description,
+                    category:    t.category,
+                    amount:      t.amount,
+                    type:        t.type
+                });
+            });
+
+            saveAndRender(); // defined in script.js — saves + refreshes table, summary, chart
+
+            showCSVBanner('success', `✅ ${_csvParsed.length} transaction(s) imported successfully!`);
+            document.getElementById('btn-import-confirm').disabled = true;
+            _csvParsed = [];
+
+            setTimeout(closeCSVModal, 1400);
+        }
+
+        /* ── Helpers ── */
+        function showCSVBanner(type, msg) {
+            const b = document.getElementById('csv-banner');
+            b.className = 'csv-banner ' + type;
+            b.textContent = msg;
+        }
+
+        function esc(str) {
+            return String(str ?? '')
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+
+        // RFC-4180-aware CSV row splitter (handles quoted fields with commas)
+        function splitCSVRow(row) {
+            const result = [];
+            let cur = '', inQ = false;
+            for (let i = 0; i < row.length; i++) {
+                const ch = row[i];
+                if (ch === '"') {
+                    if (inQ && row[i+1] === '"') { cur += '"'; i++; }
+                    else inQ = !inQ;
+                } else if (ch === ',' && !inQ) {
+                    result.push(cur); cur = '';
+                } else {
+                    cur += ch;
+                }
+            }
+            result.push(cur);
+            return result;
         }
     </script>
 </body>
